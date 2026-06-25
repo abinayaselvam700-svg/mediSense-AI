@@ -1,1 +1,1 @@
-# mediSense-AI
+# mediQ
