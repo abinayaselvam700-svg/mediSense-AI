@@ -367,3 +367,68 @@ const inputStyle = {
                 </div>
               </div>
             )}
+{/* Scan */}
+            {(tab === "scan" || tab === "barcode") && (
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#0c4a6e", marginBottom: 14 }}>
+                  {tab === "scan" ? "📷 Scan Medicine" : "📊 Barcode Scanner"}
+                </div>
+                <div style={{ border: "2px dashed #bae6fd", borderRadius: 12, padding: 24, textAlign: "center", background: "#f0f9ff", marginBottom: 14 }}>
+                  {scanPreview ? (
+                    <div>
+                      <img src={scanPreview} alt="Medicine" style={{ maxWidth: "100%", maxHeight: 180, borderRadius: 8, marginBottom: 10 }} />
+                      <button onClick={() => { setScanImage(null); setScanPreview(null); }}
+                        style={{ background: "#fef2f2", color: "#ef4444", border: "none", borderRadius: 7, padding: "6px 14px", fontSize: 12, cursor: "pointer" }}>
+                        🗑 Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <div style={{ fontSize: 36, marginBottom: 8 }}>{tab === "scan" ? "📷" : "📊"}</div>
+                      <div style={{ fontSize: 13, color: "#64748b", marginBottom: 14 }}>
+                        {tab === "scan" ? "Take photo or upload medicine image" : "Scan medicine strip barcode"}
+                      </div>
+                      <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+                        <label style={{ background: "#0369a1", color: "#fff", borderRadius: 8, padding: "9px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                          📁 Upload
+                          <input type="file" accept="image/*" style={{ display: "none" }}
+                            onChange={(e) => {
+                              const file = e.target.files[0]; if (!file) return;
+                              const reader = new FileReader();
+                              reader.onload = (ev) => { setScanPreview(ev.target.result); setScanImage(ev.target.result.split(",")[1]); };
+                              reader.readAsDataURL(file);
+                            }} />
+                        </label>
+                        <label style={{ background: "#10b981", color: "#fff", borderRadius: 8, padding: "9px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                          📷 Camera
+                          <input type="file" accept="image/*" capture="environment" style={{ display: "none" }}
+                            onChange={(e) => {
+                              const file = e.target.files[0]; if (!file) return;
+                              const reader = new FileReader();
+                              reader.onload = (ev) => { setScanPreview(ev.target.result); setScanImage(ev.target.result.split(",")[1]); };
+                              reader.readAsDataURL(file);
+                            }} />
+                        </label>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, padding: "10px 14px", fontSize: 12, color: "#166534" }}>
+                  💡 {tab === "scan" ? "Point camera at medicine label clearly" : "Point camera at barcode on medicine strip"}
+                </div>
+              </div>
+            )}
+
+            {/* Ask Button */}
+            <button onClick={handleAsk} disabled={loading}
+              style={{ marginTop: 18, width: "100%", background: loading ? "#bae6fd" : "linear-gradient(135deg, #0369a1, #0ea5e9)", color: "#fff", border: "none", borderRadius: 10, padding: "12px 0", fontSize: 15, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
+              {loading ? "⏳ Analyzing..." : "🔍 Ask MediQ"}
+            </button>
+
+            {loading && (
+              <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#0ea5e9", padding: "12px 0" }}>
+                <div style={{ width: 16, height: 16, border: "2.5px solid #bae6fd", borderTop: "2.5px solid #0ea5e9", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+                <span style={{ fontSize: 13 }}>AI is analyzing...</span>
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+              </div>
+            )}
