@@ -391,3 +391,4 @@ const inputStyle = {
                       <div style={{ fontSize: 36, marginBottom: 8 }}>{tab === "scan" ? "📷" : "📊"}</div>
                       <div style={{ fontSize: 13, color: "#64748b", marginBottom: 14 }}>
                         {tab === "scan" ? "Take photo or upload medicine image" : "Scan medicine strip barcode"}
+
