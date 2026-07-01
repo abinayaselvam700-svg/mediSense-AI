@@ -107,3 +107,29 @@ function speakText(text, lang, onWord, onEnd) {
   utterance.onend = () => { onWord(-1); onEnd(); };
   window.speechSynthesis.speak(utterance);
 }
+const LANGUAGES = [
+  { code: "en", label: "English", flag: "🇬🇧" },
+  { code: "ta", label: "தமிழ்", flag: "🇮🇳" },
+  { code: "hi", label: "हिंदी", flag: "🇮🇳" },
+  { code: "te", label: "తెలుగు", flag: "🇮🇳" },
+  { code: "kn", label: "ಕನ್ನಡ", flag: "🇮🇳" },
+  { code: "ml", label: "മലയാളം", flag: "🇮🇳" },
+];
+
+const TABS = [
+  { id: "info", icon: "💊", label: "Medicine Info" },
+  { id: "interaction", icon: "⚠️", label: "Drug Interaction" },
+  { id: "symptom", icon: "🤒", label: "Symptom Check" },
+  { id: "dosage", icon: "👤", label: "Age Dosage" },
+  { id: "scan", icon: "📷", label: "Scan" },
+  { id: "barcode", icon: "📊", label: "Barcode" },
+];
+
+const AGE_GROUPS = {
+  en: ["Infant (0–2)", "Child (3–12)", "Teen (13–17)", "Adult (18–60)", "Elderly (60+)"],
+  ta: ["குழந்தை (0–2)", "சிறுவர் (3–12)", "இளையோர் (13–17)", "பெரியவர் (18–60)", "முதியோர் (60+)"],
+  hi: ["शिशु (0–2)", "बच्चा (3–12)", "किशोर (13–17)", "वयस्क (18–60)", "बुजुर्ग (60+)"],
+  te: ["శిశువు (0–2)", "పిల్లలు (3–12)", "యుక్తవయస్కుడు (13–17)", "పెద్దలు (18–60)", "వృద్ధులు (60+)"],
+  kn: ["ಶಿಶು (0–2)", "ಮಕ್ಕಳು (3–12)", "ಹದಿಹರೆಯ (13–17)", "ವಯಸ್ಕ (18–60)", "ವೃದ್ಧ (60+)"],
+  ml: ["ശിശു (0–2)", "കുട്ടി (3–12)", "കൗമാരം (13–17)", "മുതിർന്നവർ (18–60)", "വൃദ്ധർ (60+)"],
+};
