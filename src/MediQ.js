@@ -133,3 +133,94 @@ const AGE_GROUPS = {
   kn: ["ಶಿಶು (0–2)", "ಮಕ್ಕಳು (3–12)", "ಹದಿಹರೆಯ (13–17)", "ವಯಸ್ಕ (18–60)", "ವೃದ್ಧ (60+)"],
   ml: ["ശിശു (0–2)", "കുട്ടി (3–12)", "കൗമാരം (13–17)", "മുതിർന്നവർ (18–60)", "വൃദ്ധർ (60+)"],
 };
+export default function MediQ() {
+  const [tab, setTab] = useState("info");
+  const [lang, setLang] = useState("en");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState("");
+  const [resultWords, setResultWords] = useState([]);
+  const [history, setHistory] = useState([]);
+  const [backendOnline, setBackendOnline] = useState(false);
+  const [medicineImage, setMedicineImage] = useState(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [highlightedWord, setHighlightedWord] = useState(-1);
+  const [medicineName, setMedicineName] = useState("");
+  const [drug1, setDrug1] = useState("");
+  const [drug2, setDrug2] = useState("");
+  const [symptom, setSymptom] = useState("");
+  const [dosageMed, setDosageMed] = useState("");
+  const [ageGroup, setAgeGroup] = useState(0);
+  const [scanImage, setScanImage] = useState(null);
+  const [scanPreview, setScanPreview] = useState(null);
+
+  useEffect(() => {
+    fetchHistoryFromBackend().then((data) => {
+      if (data && Array.isArray(data)) {
+        setBackendOnline(true);
+        setHistory(data.map((h) => ({
+          id: h.id, tab: h.type,
+          query: h.query.slice(0, 60) + "...",
+          result: h.result,
+        })));
+      }
+    });
+  }, []);
+
+  function switchTab(t) {
+    setTab(t);
+    setResult("");
+    setResultWords([]);
+    setMedicineImage(null);
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+  }
+
+  async function handleAsk() {
+    let prompt = "";
+
+    if (tab === "scan" || tab === "barcode") {
+      if (!scanImage) return;
+      setLoading(true); setResult("");
+      try {
+        const res = await callClaudeWithImage(scanImage, lang);
+        const structured = parseStructuredResult(res);
+        setResult(structured);
+        setResultWords(structured.split(" "));
+        await saveToBackend(tab, "Image scan", res, lang);
+      } catch { setResult("Error scanning. Try again."); }
+      setLoading(false);
+      return;
+    }
+
+    if (tab === "info") {
+      if (!medicineName.trim()) return;
+      prompt = `Give detailed information about "${medicineName}": uses, dosage, side effects, warnings, drug class.`;
+    } else if (tab === "interaction") {
+      if (!drug1.trim() || !drug2.trim()) return;
+      prompt = `Check drug interaction between "${drug1}" and "${drug2}". Safe together? Explain risks and severity.`;
+    } else if (tab === "symptom") {
+      if (!symptom.trim()) return;
+      prompt = `Patient symptoms: "${symptom}". Suggest common OTC medicines with reasons. Add strong disclaimer.`;
+    } else if (tab === "dosage") {
+      if (!dosageMed.trim()) return;
+      const ag = AGE_GROUPS[lang]?.[ageGroup] || AGE_GROUPS.en[ageGroup];
+      prompt = `Recommended dosage of "${dosageMed}" for ${ag}. Include frequency, max dose, special precautions.`;
+    }
+
+    setLoading(true); setResult(""); setMedicineImage(null);
+    try {
+      const res = await callClaude(prompt, lang);
+      const structured = parseStructuredResult(res);
+      setResult(structured);
+      setResultWords(structured.split(" "));
+      if (tab === "info") fetchMedicineImage(medicineName).then(setMedicineImage);
+      await saveToBackend(tab, prompt, res, lang);
+      const fresh = await fetchHistoryFromBackend();
+      if (fresh && Array.isArray(fresh)) {
+        setBackendOnline(true);
+        setHistory(fresh.map((h) => ({ id: h.id, tab: h.type, query: h.query.slice(0, 60) + "...", result: h.result })));
+      }
+    } catch { setResult("Error. Please try again."); }
+    setLoading(false);
+  }
