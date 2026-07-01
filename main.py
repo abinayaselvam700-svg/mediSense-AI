@@ -15,7 +15,7 @@ app.add_middleware(
 )
 
 def get_db():
-    conn = sqlite3.connect("medisense.db")
+    conn = sqlite3.connect("mediQ.db")
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -42,7 +42,7 @@ class SearchLog(BaseModel):
 
 @app.get("/")
 def root():
-    return {"message": "MediSense AI Running"}
+    return {"message": "MediQ AI Running"}
 
 @app.post("/history")
 def save_history(log: SearchLog):
