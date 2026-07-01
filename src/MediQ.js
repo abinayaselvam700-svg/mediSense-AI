@@ -279,3 +279,91 @@ const inputStyle = {
           </div>
         </div>
       </div>
+{/* Main Content */}
+      <div style={{ maxWidth: 860, margin: "0 auto", padding: "20px 16px", display: "grid", gridTemplateColumns: "1fr 260px", gap: 18 }}>
+        <div>
+          <div style={{ background: "#fff", borderRadius: 14, padding: 22, boxShadow: "0 4px 20px rgba(14,165,233,0.08)", border: "1.5px solid #e0f2fe" }}>
+
+            {/* Medicine Info */}
+            {tab === "info" && (
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#0c4a6e", marginBottom: 14 }}>💊 Medicine Info</div>
+                <label style={{ fontSize: 12, fontWeight: 700, color: "#0284c7" }}>Medicine Name</label>
+                <div style={{ position: "relative" }}>
+                  <input style={{ ...inputStyle, paddingRight: 70 }} placeholder="e.g. Paracetamol, Ibuprofen"
+                    value={medicineName} onChange={(e) => setMedicineName(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleAsk()} />
+                  <div style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", display: "flex", gap: 6, marginTop: 3 }}>
+                    <button onClick={() => {
+                      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+                      if (!SR) { alert("Voice not supported"); return; }
+                      const rec = new SR();
+                      rec.lang = "en-IN";
+                      rec.onstart = () => setIsListening(true);
+                      rec.onend = () => setIsListening(false);
+                      rec.onresult = (e) => setMedicineName(e.results[0][0].transcript);
+                      rec.start();
+                    }} style={{ background: isListening ? "#fef2f2" : "none", border: "none", cursor: "pointer", fontSize: 16, padding: 0 }}>
+                      {isListening ? "🔴" : "🎤"}
+                    </button>
+                    <label style={{ cursor: "pointer", fontSize: 16 }}>
+                      📷
+                      <input type="file" accept="image/*" capture="environment" style={{ display: "none" }}
+                        onChange={(e) => {
+                          const file = e.target.files[0]; if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = async (ev) => {
+                            const base64 = ev.target.result.split(",")[1];
+                            setLoading(true); setResult("");
+                            try { const r = await callClaudeWithImage(base64, lang); setResult(parseStructuredResult(r)); setResultWords(r.split(" ")); }
+                            catch { setResult("Could not identify."); }
+                            setLoading(false);
+                          };
+                          reader.readAsDataURL(file);
+                        }} />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Drug Interaction */}
+            {tab === "interaction" && (
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#0c4a6e", marginBottom: 14 }}>⚠️ Drug Interaction</div>
+                <label style={{ fontSize: 12, fontWeight: 700, color: "#0284c7" }}>Medicine 1</label>
+                <input style={inputStyle} placeholder="e.g. Aspirin" value={drug1} onChange={(e) => setDrug1(e.target.value)} />
+                <label style={{ fontSize: 12, fontWeight: 700, color: "#0284c7", marginTop: 10, display: "block" }}>Medicine 2</label>
+                <input style={inputStyle} placeholder="e.g. Warfarin" value={drug2} onChange={(e) => setDrug2(e.target.value)} />
+              </div>
+            )}
+
+            {/* Symptom */}
+            {tab === "symptom" && (
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#0c4a6e", marginBottom: 14 }}>🤒 Symptom Checker</div>
+                <label style={{ fontSize: 12, fontWeight: 700, color: "#0284c7" }}>Describe Symptoms</label>
+                <textarea style={{ ...inputStyle, minHeight: 90, resize: "vertical" }}
+                  placeholder="e.g. fever, headache, body pain" value={symptom} onChange={(e) => setSymptom(e.target.value)} />
+              </div>
+            )}
+
+            {/* Age Dosage */}
+            {tab === "dosage" && (
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#0c4a6e", marginBottom: 14 }}>👤 Age-based Dosage</div>
+                <label style={{ fontSize: 12, fontWeight: 700, color: "#0284c7" }}>Medicine Name</label>
+                <input style={inputStyle} placeholder="e.g. Amoxicillin" value={dosageMed} onChange={(e) => setDosageMed(e.target.value)} />
+                <div style={{ marginTop: 12 }}>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: "#0284c7" }}>Age Group</label>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+                    {(AGE_GROUPS[lang] || AGE_GROUPS.en).map((ag, i) => (
+                      <button key={i} onClick={() => setAgeGroup(i)}
+                        style={{ padding: "6px 12px", borderRadius: 20, border: "1.5px solid", borderColor: ageGroup === i ? "#0284c7" : "#e0f2fe", background: ageGroup === i ? "#e0f2fe" : "#fff", color: ageGroup === i ? "#0284c7" : "#94a3b8", fontSize: 11, fontWeight: ageGroup === i ? 700 : 500, cursor: "pointer", fontFamily: "inherit" }}>
+                        {ag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
