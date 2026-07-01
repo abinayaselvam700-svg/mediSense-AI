@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import Optional
 import sqlite3
 
-app = FastAPI(title="MediSense AI Backend")
+app = FastAPI(title="MediQ Backend")
 
 app.add_middleware(
     CORSMiddleware,
