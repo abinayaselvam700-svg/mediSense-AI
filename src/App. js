@@ -1,0 +1,4 @@
+import MediQ from './MediQ';
+export default function App() {
+  return <MediQ />;
+}
