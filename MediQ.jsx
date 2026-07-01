@@ -224,3 +224,58 @@ export default function MediQ() {
     } catch { setResult("Error. Please try again."); }
     setLoading(false);
   }
+const inputStyle = {
+    width: "100%", padding: "11px 14px", borderRadius: 9,
+    border: "1.5px solid #e0f2fe", fontSize: 14, outline: "none",
+    fontFamily: "inherit", color: "#0c4a6e", background: "#f8fcff",
+    boxSizing: "border-box", marginTop: 6,
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#f0f9ff", fontFamily: "'Inter', sans-serif" }}>
+      {/* Header */}
+      <div style={{ background: "linear-gradient(135deg, #0c4a6e 0%, #0369a1 60%, #0ea5e9 100%)", padding: "24px 20px 20px", color: "#fff" }}>
+        <div style={{ maxWidth: 860, margin: "0 auto" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 10 }}>
+            <div>
+              <div style={{ fontSize: 11, letterSpacing: 3, color: "#7dd3fc", textTransform: "uppercase", marginBottom: 2 }}>AI Medicine Assistant</div>
+              <h1 style={{ margin: 0, fontSize: 28, fontWeight: 900, letterSpacing: -1 }}>MediQ</h1>
+              <p style={{ margin: "4px 0 0", fontSize: 11, color: "#bae6fd" }}>⚠️ For informational use only. Always consult a doctor.</p>
+              <div style={{ marginTop: 6, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: backendOnline ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)", color: backendOnline ? "#6ee7b7" : "#fca5a5", fontWeight: 600 }}>
+                  {backendOnline ? "🟢 Backend Connected" : "🔴 Offline Mode"}
+                </span>
+              </div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end" }}>
+              <select value={lang} onChange={(e) => { setLang(e.target.value); setResult(""); }}
+                style={{ background: "rgba(255,255,255,0.15)", border: "1.5px solid rgba(255,255,255,0.3)", color: "#fff", borderRadius: 8, padding: "7px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", outline: "none" }}>
+                {LANGUAGES.map((l) => <option key={l.code} value={l.code} style={{ color: "#000" }}>{l.flag} {l.label}</option>)}
+              </select>
+              <div style={{ display: "flex", gap: 4 }}>
+                {[{ key: "medical", icon: "💊", label: "Pharmacy" }, { key: "clinic", icon: "🏥", label: "Clinic" }, { key: "hospital", icon: "🏨", label: "Hospital" }].map(({ key, icon, label }) => (
+                  <button key={key} onClick={() => {
+                    const q = key === "medical" ? "medical shops" : key;
+                    navigator.geolocation?.getCurrentPosition(
+                      (p) => window.open(`https://www.google.com/maps/search/${q}/@${p.coords.latitude},${p.coords.longitude},15z`, "_blank"),
+                      () => window.open(`https://www.google.com/maps/search/${q}+near+me`, "_blank")
+                    ) || window.open(`https://www.google.com/maps/search/${q}+near+me`, "_blank");
+                  }}
+                    style={{ background: "rgba(16,185,129,0.3)", border: "1px solid rgba(16,185,129,0.5)", color: "#fff", borderRadius: 6, padding: "5px 8px", fontSize: 10, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                    {icon} {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* Tabs */}
+          <div style={{ display: "flex", gap: 6, marginTop: 16, flexWrap: "wrap" }}>
+            {TABS.map((t) => (
+              <button key={t.id} onClick={() => switchTab(t.id)}
+                style={{ background: tab === t.id ? "#fff" : "rgba(255,255,255,0.12)", color: tab === t.id ? "#0369a1" : "#e0f2fe", border: "none", borderRadius: 8, padding: "7px 14px", fontSize: 12, fontWeight: tab === t.id ? 700 : 500, cursor: "pointer", fontFamily: "inherit" }}>
+                {t.icon} {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
