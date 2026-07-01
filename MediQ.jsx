@@ -432,3 +432,78 @@ const inputStyle = {
                 <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
               </div>
             )}
+{/* Medicine Image */}
+            {medicineImage && (
+              <div style={{ marginTop: 14, textAlign: "center" }}>
+                <img src={medicineImage} alt={medicineName}
+                  style={{ maxWidth: "100%", maxHeight: 160, borderRadius: 10, border: "1.5px solid #bae6fd", objectFit: "contain", background: "#f0f9ff", padding: 8 }}
+                  onError={(e) => e.target.style.display = "none"} />
+                <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>📸 Medicine reference image</div>
+              </div>
+            )}
+
+            {/* Result with Karaoke */}
+            {result && (
+              <div style={{ marginTop: 18, background: "#f0f9ff", border: "1.5px solid #bae6fd", borderRadius: 12, padding: "18px 20px", fontSize: 14, lineHeight: 2, color: "#0c4a6e", fontFamily: "inherit" }}>
+                <div style={{ display: "flex", gap: 8, marginBottom: 12, alignItems: "center" }}>
+                  <button onClick={() => {
+                    if (isSpeaking) { window.speechSynthesis.cancel(); setIsSpeaking(false); setHighlightedWord(-1); }
+                    else { setIsSpeaking(true); speakText(result, lang, (i) => setHighlightedWord(i), () => { setIsSpeaking(false); setHighlightedWord(-1); }); }
+                  }} style={{ background: isSpeaking ? "#fef2f2" : "#e0f2fe", color: isSpeaking ? "#ef4444" : "#0369a1", border: "none", borderRadius: 8, padding: "6px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+                    {isSpeaking ? "⏹ Stop" : "🔊 Listen"}
+                  </button>
+                  {isSpeaking && <span style={{ fontSize: 12, color: "#0369a1" }}>🎵 Reading...</span>}
+                </div>
+                <div style={{ whiteSpace: "pre-wrap" }}>
+                  {resultWords.map((word, i) => (
+                    <span key={i} style={{
+                      background: highlightedWord === i ? "#fde68a" : "transparent",
+                      borderRadius: 3, padding: "1px 2px",
+                      fontWeight: ["💊","📏","⚠️","🚨","🔬"].some(e => word.includes(e)) ? 700 : 400,
+                      color: ["💊","📏","⚠️","🚨","🔬"].some(e => word.includes(e)) ? "#0369a1" : "#0c4a6e",
+                      transition: "background 0.1s"
+                    }}>{word} </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* History Sidebar */}
+        <div>
+          <div style={{ background: "#fff", borderRadius: 14, padding: 18, boxShadow: "0 4px 20px rgba(14,165,233,0.08)", border: "1.5px solid #e0f2fe" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#0369a1", marginBottom: 14 }}>🕐 Recent Searches</div>
+            {history.length === 0 ? (
+              <div style={{ fontSize: 13, color: "#94a3b8", textAlign: "center", padding: "16px 0" }}>No searches yet</div>
+            ) : (
+              history.map((h, i) => (
+                <div key={i} onClick={() => setResult(h.result)}
+                  style={{ padding: "10px 12px", borderRadius: 9, marginBottom: 8, background: "#f0f9ff", border: "1px solid #e0f2fe", cursor: "pointer", fontSize: 12, color: "#0c4a6e" }}>
+                  <div style={{ fontWeight: 600, marginBottom: 2 }}>{TABS.find(t => t.id === h.tab)?.icon} {h.tab}</div>
+                  <div style={{ color: "#64748b", fontSize: 11 }}>{h.query}</div>
+                  {h.id && backendOnline && (
+                    <button onClick={async (e) => { e.stopPropagation(); await deleteFromBackend(h.id); const fresh = await fetchHistoryFromBackend(); if (fresh) setHistory(fresh.map((x) => ({ id: x.id, tab: x.type, query: x.query.slice(0, 60) + "...", result: x.result }))); }}
+                      style={{ marginTop: 4, fontSize: 10, color: "#ef4444", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                      🗑 Delete
+                    </button>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Quick Tips */}
+          <div style={{ marginTop: 14, background: "#fff", borderRadius: 14, padding: 18, boxShadow: "0 4px 20px rgba(14,165,233,0.08)", border: "1.5px solid #e0f2fe" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#0369a1", marginBottom: 12 }}>💡 Try These</div>
+            {[{ icon: "💊", text: "Paracetamol uses" }, { icon: "⚠️", text: "Aspirin + Warfarin" }, { icon: "🤒", text: "Fever + cold" }, { icon: "👶", text: "Ibuprofen for child" }].map((tip, i) => (
+              <div key={i} style={{ padding: "7px 10px", borderRadius: 7, marginBottom: 6, background: "#f8fcff", fontSize: 12, color: "#0369a1", border: "1px solid #e0f2fe" }}>
+                {tip.icon} {tip.text}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
